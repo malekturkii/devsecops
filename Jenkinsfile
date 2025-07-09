@@ -1,11 +1,37 @@
 pipeline {
     agent any
+     
+    tools {
+        nodejs 'NODE24'
+    }
+    environment {
+        CI = 'true'
+       
+    }
 
     stages {
-        stage('Dire bonjour') {
+       stage('Install') {
             steps {
-                echo 'Bonjour depuis Jenkins 👋'
+                sh 'npm install'
             }
         }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                sh 'npm run test:ci || true'
+            }
+        }
+
+        stage('Audit NPM') {
+            steps {
+                sh 'npm audit --audit-level=high || true'
+            }
+        } 
     }
 }
