@@ -3,7 +3,7 @@ pipeline {
      
     tools {
         nodejs 'NODE24'
-         sonarScanner 'sonar'
+        sonarScanner 'sonar'
     }
     environment {
         CI = 'true'
