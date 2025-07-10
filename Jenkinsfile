@@ -32,6 +32,18 @@ pipeline {
             steps {
                 sh 'npm audit --audit-level=high || true'
             }
-        } 
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQubeServer') { // Remplace par le nom que tu as défini
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=telecom \
+                      -Dsonar.projectName=telecom \
+                      -Dsonar.sources=. \
+                      -Dsonar.sourceEncoding=UTF-8
+                    '''
+                }
+            } 
     }
 }
