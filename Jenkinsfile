@@ -35,7 +35,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') { // Remplace par le nom que tu as défini
+                withSonarQubeEnv('sonar') {
                     sh '''
                     sonar-scanner \
                       -Dsonar.projectKey=telecom \
