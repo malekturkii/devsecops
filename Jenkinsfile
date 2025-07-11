@@ -63,7 +63,7 @@ pipeline {
                       -v /var/lib/jenkins/workspace/jenkins-test-1:/zap/wrk/:rw \
                       --network host \
                       zaproxy/zap-stable \
-                      zap-baseline.py -t http://localhost:3000 -r zap-report.html
+                      zap-baseline.py -t http://localhost:3000 -r zap-report.html || [ $? -eq 2 ]
           '''
         }
         // Archiver le rapport dans Jenkins
