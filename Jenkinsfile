@@ -50,7 +50,7 @@ pipeline {
         }    
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t telecom-pfe:latest .'
+               # sh 'docker build -t telecom-pfe:latest .'
             }
         }
         stage('DAST - OWASP ZAP Baseline Scan') {
@@ -58,12 +58,7 @@ pipeline {
                  script {
                       // Lancer OWASP ZAP baseline scan via Docker
                       sh '''
-                      docker run -t --rm \
-                      -v $(pwd):/zap/wrk/:rw \
-                      --network host \
-                      owasp/zap2docker-stable zap-baseline.py \
-                      -t http://localhost:3000 \
-                      -r zap-report.html
+                      docker run -t --rm -v /var/lib/jenkins/workspace/jenkins-test-1:/zap/wrk/:rw --network host owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000 -r zap-report.html
           '''
         }
         // Archiver le rapport dans Jenkins
