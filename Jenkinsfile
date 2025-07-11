@@ -31,18 +31,10 @@ pipeline {
         stage('Audit NPM') {
             steps {
                 sh 'npm audit --audit-level=high || true'
+                archiveArtifacts artifacts: 'audit-report.json', fingerprint: true
             }
         }
     
-        stage('OWASP Dependency Check') {
-            steps {
-                echo 'Running OWASP Dependency-Check...'
-                sh '''
-                dependency-check.sh --project telecom --scan frontend --format HTML --out dependency-check-report 
-                '''
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar') {
@@ -57,13 +49,6 @@ pipeline {
             } 
 }    
 }
-    post {
-        always {
-            echo 'Publishing OWASP Dependency-Check report...'
-            dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.html'
-
-            echo 'Pipeline finished.'
-        }
-    }
+   
   
 }
