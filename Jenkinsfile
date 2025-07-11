@@ -6,7 +6,7 @@ pipeline {
     }
     environment {
         CI = 'true'
-       
+        dependencyCheck owaspdp
     }
 
     stages {
@@ -33,6 +33,14 @@ pipeline {
                 sh 'npm audit --audit-level=high || true'
             }
         }
+    
+        stage('OWASP Dependency Check') {
+            steps {
+                echo 'Running OWASP Dependency-Check...'
+                dependencyCheck additionalArguments: '--scan . --format HTML', outdir: 'dependency-check-report'
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar') {
@@ -46,5 +54,14 @@ pipeline {
                 }
             } 
 }    
+
+   post {
+        always {
+            echo 'Publishing OWASP Dependency-Check report...'
+            dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.html'
+
+            echo 'Pipeline finished.'
+        }
+    }
 }
 }
