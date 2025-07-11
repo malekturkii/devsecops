@@ -38,7 +38,7 @@ pipeline {
             steps {
                 echo 'Running OWASP Dependency-Check...'
                 sh '''
-                dependency-check.sh --project telecom --scan frontend --format HTML --out dependency-check-report --disableAssemblyAnalyzer
+                dependency-check.sh --project telecom --scan frontend --format HTML --out dependency-check-report 
                 '''
             }
         }
