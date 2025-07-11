@@ -56,7 +56,7 @@ pipeline {
                 }
             } 
 }    
-
+}
     post {
         always {
             echo 'Publishing OWASP Dependency-Check report...'
@@ -65,5 +65,5 @@ pipeline {
             echo 'Pipeline finished.'
         }
     }
-}
+  
 }
