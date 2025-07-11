@@ -51,7 +51,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                // sh 'docker build -t telecom-pfe:latest .'
-            }
+                   echo "Hello world"       
+           }
         }
         stage('DAST - OWASP ZAP Baseline Scan') {
               steps {
