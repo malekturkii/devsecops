@@ -6,7 +6,7 @@ pipeline {
     }
     environment {
         CI = 'true'
-        dependencyCheck owaspdp
+        
     }
 
     stages {
@@ -37,7 +37,9 @@ pipeline {
         stage('OWASP Dependency Check') {
             steps {
                 echo 'Running OWASP Dependency-Check...'
-                dependencyCheck additionalArguments: '--scan . --format HTML', outdir: 'dependency-check-report'
+                sh '''
+                dependency-check.sh --project telecom --scan . --format HTML --out dependency-check-report
+                '''
             }
         }
 
@@ -55,7 +57,7 @@ pipeline {
             } 
 }    
 
-   post {
+    post {
         always {
             echo 'Publishing OWASP Dependency-Check report...'
             dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.html'
