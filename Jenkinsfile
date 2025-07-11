@@ -59,7 +59,11 @@ pipeline {
                  script {
                       // Lancer OWASP ZAP baseline scan via Docker
                       sh '''
-                      docker run -t --rm -v /var/lib/jenkins/workspace/jenkins-test-1:/zap/wrk/:rw --network host owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000 -r zap-report.html
+                      docker run -t --rm \
+                      -v /var/lib/jenkins/workspace/jenkins-test-1:/zap/wrk/:rw \
+                      --network host \
+                      zaproxy/zap-stable \
+                      zap-baseline.py -t http://localhost:3000 -r zap-report.html
           '''
         }
         // Archiver le rapport dans Jenkins
