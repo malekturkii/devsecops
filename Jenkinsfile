@@ -30,7 +30,7 @@ pipeline {
 
         stage('Audit NPM') {
             steps {
-                sh 'npm audit --audit-level=high || true'
+                sh 'npm audit --audit-level=high --json > audit-report.json || true'
                 archiveArtifacts artifacts: 'audit-report.json', fingerprint: true
             }
         }
