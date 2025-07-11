@@ -53,7 +53,25 @@ pipeline {
                 sh 'docker build -t telecom-pfe:latest .'
             }
         }
-
+        stage('DAST - OWASP ZAP Baseline Scan') {
+              steps {
+                 script {
+                      // Lancer OWASP ZAP baseline scan via Docker
+                      sh '''
+                      docker run -t --rm \
+                      -v $(pwd):/zap/wrk/:rw \
+                      --network host \
+                      owasp/zap2docker-stable zap-baseline.py \
+                      -t http://localhost:3000 \
+                      -r zap-report.html
+          '''
+        }
+        // Archiver le rapport dans Jenkins
+             archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
+        // Publier le rapport dans la console
+             sh 'cat zap-report.html || true'
+      }
+    }
 
 }
    
