@@ -51,8 +51,12 @@ pipeline {
         }    
         stage('Build Docker Image') {
             steps {
-               // sh 'docker build -t malekdocker98/telecom-pfe .'
-                   echo "Hello world"       
+                sh '''
+                docker build -t malekdocker98/telecom-pfe .
+                docker run -d --name telecom-pfe -p 3000:3000 malekdocker98/telecom-pfe
+                sleep 5
+                '''
+               //    echo "Hello world"       
            }
         }
         stage('DAST - OWASP ZAP Baseline Scan') {
@@ -85,11 +89,19 @@ pipeline {
 
                     echo "🚪 Déconnexion de Docker Hub..."
                     docker logout
+                    
                     '''
                 }
-            }
+                  // 1) Arrêter et supprimer le conteneur
+        sh 'docker rm -f telecom-pfe || true'
+        // 2) Supprimer l’image taggée
+        sh 'docker rmi malekdocker98/telecom-pfe || true'
+        // 3) Supprimer toutes les images dangling (<none>)
+        sh 'docker image prune -f' 
+           }
         }
-}
-   
   
+
+   }
+   
 }
