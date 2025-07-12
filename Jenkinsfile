@@ -6,7 +6,8 @@ pipeline {
     }
     environment {
         CI = 'true'
-        
+        DOCKER_IMAGE = 'malekdocker98/telecom-pfe'
+        DOCKER_TAG   = 'latest'
     }
 
     stages {
@@ -50,7 +51,7 @@ pipeline {
         }    
         stage('Build Docker Image') {
             steps {
-               // sh 'docker build -t telecom-pfe:latest .'
+               // sh 'docker build -t malekdocker98/telecom-pfe .'
                    echo "Hello world"       
            }
         }
@@ -72,7 +73,22 @@ pipeline {
              sh 'cat zap-report.html || true'
       }
     }
+     stage('Docker Login & Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "🔐 Connexion à Docker Hub..."
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
+                    echo "📤 Push de l'image vers Docker Hub..."
+                    docker push $DOCKER_IMAGE:$DOCKER_TAG
+
+                    echo "🚪 Déconnexion de Docker Hub..."
+                    docker logout
+                    '''
+                }
+            }
+        }
 }
    
   
