@@ -36,6 +36,44 @@ pipeline {
             }
         }
     
+         stage('Check SCA Vulnerabilities') {
+      steps {
+        script {
+          // Chargez le JSON
+          def audit = readJSON file: 'audit-report.json'
+
+          // Récupérez le nombre total de vulnérabilités
+          def total = audit.metadata?.vulnerabilities?.total ?: 0
+
+          echo "npm audit a trouvé ${total} vulnérabilités."
+
+          if (total > 0) {
+            // Envoi de mail avec le rapport en pièce jointe
+            emailext (
+              subject: "🚨 SCA Alert: ${total} vulnérabilités détectées (Build #${env.BUILD_NUMBER})",
+              body: """\
+                Bonjour,
+
+                La commande **npm audit** a détecté **${total}** vulnérabilités dans les dépendances.
+
+                La build est échouée comme demandé.  
+                Voir le rapport complet en pièce jointe.
+
+                --  
+                Jenkins CI
+              """.stripIndent(),
+              to: 'mohamedmalekturki@gmail.com',
+              attachmentsPattern: 'audit-report.json'
+            )
+
+            // Force l’échec de la build
+            error("Abandon de la build : ${total} vulnérabilités SCA détectées.")
+          }
+        }
+      }
+    }
+
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar') {
