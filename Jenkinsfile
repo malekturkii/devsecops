@@ -130,7 +130,7 @@ pipeline {
           )
 
           // Pause jusqu’à ce que l’un des deux liens soit cliqué
-          timeout(time: 1, unit: 'DAY') {
+          timeout(time: 1, unit: 'DAYS') {
             input id: 'Validate_Sonar',
                   message: 'Validez ou annulez via le mail reçu',
                   submitterParameter: 'CHOIX' // facultatif, pour récupérer dans les logs
