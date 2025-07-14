@@ -40,7 +40,7 @@ pipeline {
       steps {
         script {
           // Chargez le JSON
-          def jsonText = readJSON file: 'audit-report.json'
+          def jsonText = readFile('audit-report.json')
 
          //  Parse with Groovy's JsonSlurper
           def audit = new groovy.json.JsonSlurper().parseText(jsonText)
