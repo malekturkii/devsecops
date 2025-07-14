@@ -143,7 +143,7 @@ pipeline {
             steps {
                 sh '''
                 docker build -t malekdocker98/telecom-pfe .
-                docker run -d --name telecom-pfe -p 3000:3000 malekdocker98/telecom-pfe
+                docker run -d --name telecom-pfe -p 4000:3000 malekdocker98/telecom-pfe
                 sleep 5
                 '''
                //    echo "Hello world"       
@@ -158,7 +158,7 @@ pipeline {
                       -v /var/lib/jenkins/workspace/jenkins-test-1:/zap/wrk/:rw \
                       --network host \
                       zaproxy/zap-stable \
-                      zap-baseline.py -t http://localhost:3000 -r zap-report.html || [ $? -eq 2 ]
+                      zap-baseline.py -t http://localhost:4000 -r zap-report.html -x zap_report.xml || [ $? -eq 2 ]
           '''
         }
         // Archiver le rapport dans Jenkins
@@ -167,6 +167,49 @@ pipeline {
              sh 'cat zap-report.html || true'
       }
     }
+
+
+
+        stage('DAST – OWASP ZAP Baseline Scan') {
+      steps {
+
+        // Analyse du XML et comptage des alertes
+        script {
+          // lit le XML généré
+          def xmlText = readFile('zap-report.xml')
+          def xml    = new XmlParser().parseText(xmlText)
+
+          // chaque <site> peut contenir plusieurs <alerts><alert>…
+          def count = xml.'site'.'alerts'.'alert'.size()
+          echo "🔍 OWASP ZAP a détecté ${count} vulnérabilités."
+
+          if (count > 0) {
+            // 4a) envoi du mail avec le HTML en pièce jointe
+            emailext(
+              subject: "🚨 DAST Alert: ${count} vulnérabilités détectées",
+              body: """
+                Bonjour,
+
+                OWASP ZAP a détecté *${count}* vulnérabilités dynamiques.
+                Le rapport complet est en pièce jointe.
+
+                --  
+                Jenkins CI
+              """.stripIndent(),
+              to: 'mohamedmalekturki@gmail.com',
+              attachmentsPattern: 'zap_report.html'
+            )
+
+            // 4b) échec de la build
+            error("Échec DAST : ${count} vulnérabilités détectées.")
+          }
+        }
+      }
+    }
+
+
+
+
      stage('Docker Login & Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
