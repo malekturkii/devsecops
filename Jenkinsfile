@@ -1,3 +1,9 @@
+NonCPS
+def loadAuditReport() {
+  def text = readFile('audit-report.json')
+  return new groovy.json.JsonSlurper().parseText(text)
+}
+
 pipeline {
     agent any
      
@@ -39,11 +45,10 @@ pipeline {
          stage('Check SCA Vulnerabilities') {
       steps {
         script {
-          // Chargez le JSON
-          def jsonText = readFile('audit-report.json')
+            // Call our @NonCPS method — result is a plain Map only inside this block
+          def audit = loadAuditReport()
 
-         //  Parse with Groovy's JsonSlurper
-          def audit = new groovy.json.JsonSlurper().parseText(jsonText)
+       
 
 
           // Récupérez le nombre total de vulnérabilités
