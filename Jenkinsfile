@@ -176,7 +176,7 @@ pipeline {
         // Analyse du XML et comptage des alertes
         script {
           // lit le XML généré
-          def xmlText = readFile('zap-report.xml')
+          def xmlText = readFile('zap_report.xml')
           def xml    = new XmlParser().parseText(xmlText)
 
           // chaque <site> peut contenir plusieurs <alerts><alert>…
