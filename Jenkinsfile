@@ -87,6 +87,58 @@ pipeline {
                 }
             } 
         }    
+
+
+        stage('Validation Manuelle') {
+         steps {
+          script {
+           // Construction des URLs pour Proceed / Abort
+           def base = "${env.BUILD_URL}input/Validate_Sonar" 
+           def proceedUrl = "${base}/proceedEmpty?token=${env.INPUT_TOKEN}"
+           def abortUrl   = "${base}/abort?token=${env.INPUT_TOKEN}"
+
+          // Envoi du mail avec deux boutons
+           emailext (
+            mimeType: 'text/html',
+            subject : "Action requise : validez SonarQube pour ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            to      : 'mohamedmalekturki@gmail.com',
+            body    : """
+              <p>Bonjour,</p>
+              <p>L’analyse SonarQube pour <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> est terminée.</p>
+              <p>Veuillez choisir :</p>
+              <p>
+                <a href="${proceedUrl}" style="
+                  display:inline-block;
+                  padding:10px 20px;
+                  background-color:#28a745;
+                  color:#fff;
+                  text-decoration:none;
+                  border-radius:4px;
+                ">Proceed</a>
+                &nbsp;
+                <a href="${abortUrl}" style="
+                  display:inline-block;
+                  padding:10px 20px;
+                  background-color:#d73a49;
+                  color:#fff;
+                  text-decoration:none;
+                  border-radius:4px;
+                ">Abort</a>
+              </p>
+              <p>— Jenkins CI</p>
+            """.stripIndent()
+          )
+
+          // Pause jusqu’à ce que l’un des deux liens soit cliqué
+          timeout(time: 1, unit: 'DAY') {
+            input id: 'Validate_Sonar',
+                  message: 'Validez ou annulez via le mail reçu',
+                  submitterParameter: 'CHOIX' // facultatif, pour récupérer dans les logs
+          }
+        }
+      }
+    }
+
         stage('Build Docker Image') {
             steps {
                 sh '''
