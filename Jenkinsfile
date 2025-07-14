@@ -62,8 +62,8 @@ pipeline {
                 --  
                 Jenkins CI
               """.stripIndent(),
-              to: 'mohamedmalekturki@gmail.com'
-            //  attachmentsPattern: 'audit-report.json'
+              to: 'mohamedmalekturki@gmail.com',
+              attachmentsPattern: 'audit-report.json'
             )
 
             // Force l’échec de la build
