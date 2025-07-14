@@ -40,7 +40,11 @@ pipeline {
       steps {
         script {
           // Chargez le JSON
-          def audit = readJSON file: 'audit-report.json'
+          def jsonText = readJSON file: 'audit-report.json'
+
+         //  Parse with Groovy's JsonSlurper
+          def audit = new groovy.json.JsonSlurper().parseText(jsonText)
+
 
           // Récupérez le nombre total de vulnérabilités
           def total = audit.metadata?.vulnerabilities?.total ?: 0
