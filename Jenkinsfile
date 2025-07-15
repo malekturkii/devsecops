@@ -229,7 +229,14 @@ pipeline {
         sh 'docker image prune -f' 
            }
         }
-  
+    stage('Simulated Deployment') {
+     steps {
+      sh '''
+      
+      ./.deployements.sh
+    '''
+  }
+}  
 
    }
    
