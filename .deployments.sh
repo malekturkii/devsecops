@@ -1,0 +1,5 @@
+  echo '[INFO] Connecting to ubuntu@192.168.1.69'
+  echo '[INFO] cd /home/ubuntu/app'
+  echo '[INFO] docker-compose pull'
+  echo '[INFO] docker-compose up -d'
+  echo '[INFO] Deployment finished.'

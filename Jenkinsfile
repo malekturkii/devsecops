@@ -233,7 +233,7 @@ pipeline {
      steps {
       sh '''
       
-      ./.deployements.sh
+      ./.deployments.sh
     '''
   }
 }  
