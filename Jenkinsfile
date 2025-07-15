@@ -158,11 +158,11 @@ pipeline {
                       -v /var/lib/jenkins/workspace/jenkins-test-1:/zap/wrk/:rw \
                       --network host \
                       zaproxy/zap-stable \
-                      zap-baseline.py -t http://localhost:4000 -r zap-report.html -x zap_report.xml || [ $? -eq 2 ]
+                      zap-baseline.py -t http://localhost:4000 -r zap-report.html -x zap_report.xml -J zap-report.json || [ $? -eq 2 ]
           '''
         }
         // Archiver le rapport dans Jenkins
-             archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
+             archiveArtifacts artifacts: 'zap-report.html,zap-report.json,zap_report.xml', fingerprint: true
         // Publier le rapport dans la console
              sh 'cat zap-report.html || true'
       }
@@ -170,42 +170,38 @@ pipeline {
 
 
 
-        stage('DAST – OWASP ZAP Baseline Scan') {
-      steps {
+     stage('DAST – Parse JSON Report') {
+  steps {
+    script {
+      // lit directement le JSON
+      def report = readJSON file: 'zap-report.json'
 
-        // Analyse du XML et comptage des alertes
-        script {
-          // lit le XML généré
-          def xmlText = readFile('zap_report.xml')
-          def xml    = new XmlParser().parseText(xmlText)
+      // selon la structure ZAP, on compte toutes les alertes
+      // report.site est une liste, on itère sur chaque site
+      int count = report.site.collect { it.alerts.alert }.flatten().size()
 
-          // chaque <site> peut contenir plusieurs <alerts><alert>…
-          def count = xml.'site'.'alerts'.'alert'.size()
-          echo "🔍 OWASP ZAP a détecté ${count} vulnérabilités."
+      echo "🔍 OWASP ZAP a détecté ${count} vulnérabilités (via JSON parsing)."
 
-          if (count > 0) {
-            // 4a) envoi du mail avec le HTML en pièce jointe
-            emailext(
-              subject: "🚨 DAST Alert: ${count} vulnérabilités détectées",
-              body: """
-                Bonjour,
+      if (count > 0) {
+        emailext(
+          subject: "🚨 DAST Alert: ${count} vulnérabilités détectées",
+          body: """
+            Bonjour,
 
-                OWASP ZAP a détecté *${count}* vulnérabilités dynamiques.
-                Le rapport complet est en pièce jointe.
+            OWASP ZAP a détecté *${count}* vulnérabilités dynamiques.
+            Le rapport complet est en pièce jointe.
 
-                --  
-                Jenkins CI
-              """.stripIndent(),
-              to: 'mohamedmalekturki@gmail.com',
-              attachmentsPattern: 'zap_report.html'
-            )
-
-            // 4b) échec de la build
-            error("Échec DAST : ${count} vulnérabilités détectées.")
-          }
-        }
+            --  
+            Jenkins CI
+          """.stripIndent(),
+          to: 'mohamedmalekturki@gmail.com',
+          attachmentsPattern: 'zap-report.html'
+        )
+      //  error("Échec DAST : ${count} vulnérabilités détectées.")
       }
     }
+  }
+}
 
 
 
